@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import QuerySet
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import generic
@@ -16,9 +17,19 @@ class SuccessUrlToPostDetailMixin:
         return reverse_lazy('blog:post_detail', args=[self.object.pk])
 
 
+class FilterQuerySetByAuthorMixin:
+    def get_queryset(self):
+        qs: QuerySet = super().get_queryset()
+
+        qs = qs.filter(author=self.request.user)
+
+        return qs
+
+
 class PostCreateView(
     PostViewMixin,
     LoginRequiredMixin,
+    FilterQuerySetByAuthorMixin,
     SuccessUrlToPostDetailMixin,
     generic.CreateView
 ):
@@ -34,6 +45,7 @@ class PostCreateView(
 class PostUpdateView(
     PostViewMixin,
     LoginRequiredMixin,
+    FilterQuerySetByAuthorMixin,
     SuccessUrlToPostDetailMixin,
     generic.UpdateView
 ):
@@ -43,6 +55,7 @@ class PostUpdateView(
 class PostDeleteView(
     PostViewMixin,
     LoginRequiredMixin,
+    FilterQuerySetByAuthorMixin,
     generic.DeleteView
 ):
     success_url = reverse_lazy('blog:home')
