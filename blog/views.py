@@ -1,8 +1,11 @@
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import QuerySet
+from django.db.models import F, QuerySet
+from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.views import generic
+from django.views.decorators.http import require_POST
 
 from . import models
 
@@ -63,3 +66,18 @@ class PostDeleteView(
 
 class PostDetailView(PostViewMixin, generic.DetailView):
     pass
+
+
+@require_POST
+@login_required
+def post_increment_like_view(_, pk):
+    models.Post.objects.filter(pk=pk).update(likes=F('likes') + 1)
+    return HttpResponse(status=201)
+
+
+@require_POST
+@login_required
+def post_increment_dislike_view(_, pk):
+    models.Post.objects.filter(pk=pk).update(dislikes=F('dislikes') + 1)
+    return HttpResponse(status=201)
+
