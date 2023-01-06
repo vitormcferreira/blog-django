@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <form method="POST">
+    {% csrf_token %}
+    <p>Deseja apagar "{{ object.title }}"?</p>
+    <input type="submit" value="Sim">
+  </form>
+{% endblock content %}

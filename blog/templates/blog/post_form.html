@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ form.errors }}
+    {{ form.as_div }}
+    <button type="submit">Salvar</button>
+  </form>
+{% endblock content %}
+

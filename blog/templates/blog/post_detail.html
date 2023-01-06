@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block content %}
+  {% if request.user == object.author %}
+    <p><a href="{% url 'blog:post_update' object.pk %}">Update</a></p>
+    <p><a href="{% url 'blog:post_delete' object.pk %}">Delete</a></p>
+  {% endif %}
+
+  <hr>
+
+  <h1>{{ object.title }}</h1>
+
+  <p>Author: {{ object.author }}</p>
+
+  <p style="color: #888;">{{ object.abstract }}</p>
+
+  <p>{{ object.text }}</p>
+
+  <p>
+    {% if request.user.is_authenticated %}
+    <button 
+      id="likes" 
+      onclick="handleLike('#likes', '#dislikes', '{% url 'blog:interaction' object.pk %}?type=like', '{{ csrf_token }}')" 
+      {% if liked %}
+        class="active" 
+      {% endif %}>
+      <span>{{ likes.all|length }}</span> likes
+    </button>
+    {% endif %}
+  </p>
+  <p>
+    {% if request.user.is_authenticated %}
+    <button 
+      id="dislikes" 
+      onclick="handleDislike('#likes', '#dislikes', '{% url 'blog:interaction' object.pk %}?type=dislike', '{{ csrf_token }}')"
+      {% if disliked %}
+        class="active" 
+      {% endif %}>
+      <span>{{ dislikes.all|length }}</span> dislikes
+    </button>
+    {% endif %}
+  </p>
+
+  <hr>
+
+  <h2>Comentários</h2>
+
+  <form method="POST" action="{% url 'blog:comment_create' object.pk %}">
+    {% csrf_token %}
+    {{ comment_form }}
+    <input type="submit" value="Enviar">
+  </form>
+
+  {% for comment in comments %}
+  <article>
+    <header>
+      <h1>{% if comment.author %}
+        {{ comment.author }}
+        {% else %}
+        Anônimo
+        {% endif %}</h1>
+    </header>
+    <main>
+      <p>{{comment.text}}</p>
+    </main>
+    <footer>
+      <p>
+        {% if request.user.is_authenticated %}
+        <button 
+          id="likes{{ comment.pk }}" 
+          onclick="handleLike('#likes{{ comment.pk }}', '#dislikes{{ comment.pk }}', '{% url 'blog:interaction' comment.pk %}?type=like', '{{ csrf_token }}')" 
+          {% if comment.liked %}
+            class="active" 
+          {% endif %}>
+          <span>{{ comment.likes.all|length }}</span> likes
+        </button>
+        {% endif %}
+      </p>
+      <p>
+        {% if request.user.is_authenticated %}
+        <button 
+          id="dislikes{{ comment.pk }}" 
+          onclick="handleDislike('#likes{{ comment.pk }}', '#dislikes{{ comment.pk }}', '{% url 'blog:interaction' comment.pk %}?type=dislike', '{{csrf_token}}')" 
+          {% if comment.disliked %}
+            class="active" 
+          {% endif %}>
+          <span>{{ comment.dislikes.all|length }}</span> dislikes
+        </button>
+        {% endif %}
+      </p>
+    </footer>
+  </article>
+  {% endfor %}
+{% endblock content %}
+
+{% block js %}
+  <script src="{% static 'assets/js/post_detail.js' %}"></script>
+{% endblock js %}

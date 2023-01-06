@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block title %}Blog{% endblock title %}
+
+{% block content %}
+  <p><a href="{% url 'blog:post_create' %}">novo post</a><p>
+  <br>
+  {% for post in object_list %}
+    <a href="{% url 'blog:post_detail' post.pk %}">{{ post.title }}</a>
+    <br>
+  {% endfor %}
+{% endblock content %}
