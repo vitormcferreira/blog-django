@@ -1,11 +1,9 @@
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import F, QuerySet
-from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.db.models import QuerySet
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views import generic
-from django.views.decorators.http import require_POST
 
 from . import forms, models
 
@@ -69,15 +67,36 @@ class PostDetailView(PostViewMixin, generic.DetailView):
         context = super().get_context_data(**kwargs)
 
         post = self.object
+        user = self.request.user
+
+        context['likes'] = models.Interaction.objects.filter(
+            post=post, value=models.Interaction.LIKE)
+        context['liked'] = context['likes'].filter(user=user).exists()
+
+        context['dislikes'] = models.Interaction.objects.filter(
+            post=post, value=models.Interaction.DISLIKE)
+        context['disliked'] = context['dislikes'].filter(user=user).exists()
 
         context['comment_form'] = forms.CommentForm(initial={'post': post})
-        context["comments"] = models.Comment.objects.filter(post=post)
+
+        comments = models.Post.objects.filter(parent=post)
+
+        for comment in comments:
+            comment.likes = models.Interaction.objects.filter(
+                post=comment, value=models.Interaction.LIKE)
+            comment.liked = comment.likes.filter(user=user).exists()
+
+            comment.dislikes = models.Interaction.objects.filter(
+                post=comment, value=models.Interaction.DISLIKE)
+            comment.disliked = comment.dislikes.filter(user=user).exists()
+
+        context["comments"] = comments
 
         return context
 
 
 class CommentViewMixin:
-    model = models.Comment
+    model = models.Post
 
 
 class CommentCreateView(
@@ -90,43 +109,53 @@ class CommentCreateView(
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        post_id = self.kwargs['post_id']
+        parent_id = self.kwargs['post_id']
 
         # se o usuário não estiver autenticado o comentário é feito sem
         # author (NULL)
         if self.request.user.is_authenticated:
             self.object.author = self.request.user
 
-        self.object.post_id = post_id
+        self.object.parent_id = parent_id
 
         self.object.save()
 
-        return redirect(reverse_lazy('blog:post_detail', args=[post_id]))
+        return redirect(reverse_lazy('blog:post_detail', args=[parent_id]))
 
 
-@require_POST
-@login_required
-def post_increment_like_view(_, pk):
-    models.Post.objects.filter(pk=pk).update(likes=F('likes') + 1)
-    return HttpResponse(status=201)
+class InteractionView(LoginRequiredMixin, generic.View):
+    def post(self, *args, **kwargs):
+        post = get_object_or_404(models.Post, pk=self.kwargs['pk'])
+        type_ = self.request.GET.get('type')
 
+        match type_:
+            case 'like':
+                self._like_post(post)
+            case 'dislike':
+                self._dislike_post(post)
 
-@require_POST
-@login_required
-def post_increment_dislike_view(_, pk):
-    models.Post.objects.filter(pk=pk).update(dislikes=F('dislikes') + 1)
-    return HttpResponse(status=201)
+        return JsonResponse(data={}, status=201)
 
+    def _like_post(self, post):
+        self._do_interaction(post, models.Interaction.LIKE)
 
-@require_POST
-@login_required
-def comment_increment_like_view(_, pk):
-    models.Comment.objects.filter(pk=pk).update(likes=F('likes') + 1)
-    return HttpResponse(status=201)
+    def _dislike_post(self, post):
+        self._do_interaction(post, models.Interaction.DISLIKE)
 
+    def _do_interaction(self, post, value):
+        try:
+            interaction = models.Interaction.objects.get(
+                post=post, user=self.request.user)
 
-@require_POST
-@login_required
-def comment_increment_dislike_view(_, pk):
-    models.Comment.objects.filter(pk=pk).update(dislikes=F('dislikes') + 1)
-    return HttpResponse(status=201)
+            already_interacted = interaction.value == str(value)
+
+            if already_interacted:
+                interaction.delete()
+                return
+
+            interaction.value = value
+        except:
+            interaction = models.Interaction(
+                post=post, user=self.request.user, value=value)
+
+        interaction.save()

@@ -19,12 +19,5 @@ urlpatterns = [
          views.CommentCreateView.as_view(), name='comment_create'),
 
     # Requisições feitas com Ajax
-    path('post_increment_like/<pk>/', views.post_increment_like_view,
-         name='post_increment_like'),
-    path('post_increment_dislike/<pk>/', views.post_increment_dislike_view,
-         name='post_increment_dislike'),
-    path('comment_increment_like/<pk>/', views.comment_increment_like_view,
-         name='comment_increment_like'),
-    path('comment_increment_dislike/<pk>/', views.comment_increment_dislike_view,
-         name='comment_increment_dislike'),
+    path('interaction/<pk>/', views.InteractionView.as_view(), name='interaction'),
 ]

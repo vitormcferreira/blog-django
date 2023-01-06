@@ -5,5 +5,5 @@ from . import models
 
 class CommentForm(ModelForm):
     class Meta:
-        model = models.Comment
+        model = models.Post
         fields = ['text']

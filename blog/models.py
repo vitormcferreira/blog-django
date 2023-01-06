@@ -2,28 +2,23 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-class Likeable(models.Model):
-    likes = models.IntegerField(default=0, auto_created=True)
-    dislikes = models.IntegerField(default=0, auto_created=True)
+class Interaction(models.Model):
+    post = models.ForeignKey('blog.Post', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    class Meta:
-        abstract = True
+    LIKE = 'LK', 'like'
+    DISLIKE = 'DL', 'dislike'
+
+    value = models.CharField(
+        choices=[LIKE, DISLIKE], max_length=2)
 
 
-class HasAuthor(models.Model):
+class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-
-    class Meta:
-        abstract = True
-
-
-class Post(Likeable, HasAuthor):
-    title = models.CharField(max_length=255)
-    abstract = models.TextField()
+    title = models.CharField(max_length=255, null=True)
+    abstract = models.TextField(null=True)
     text = models.TextField()
 
-
-class Comment(Likeable, HasAuthor):
-    post = models.ForeignKey(
-        Post, on_delete=models.CASCADE, related_name='comments')
-    text = models.TextField()
+    parent = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
+    interactions = models.ManyToManyField(
+        User, through=Interaction, related_name='interacted_posts')
