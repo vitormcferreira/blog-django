@@ -67,15 +67,17 @@ class PostDetailView(PostViewMixin, generic.DetailView):
         context = super().get_context_data(**kwargs)
 
         post = self.object
-        user = self.request.user
+
+        user_id = self.request.user.id
 
         context['likes'] = models.Interaction.objects.filter(
             post=post, value=models.Interaction.LIKE)
-        context['liked'] = context['likes'].filter(user=user).exists()
+        context['liked'] = context['likes'].filter(user_id=user_id).exists()
 
         context['dislikes'] = models.Interaction.objects.filter(
             post=post, value=models.Interaction.DISLIKE)
-        context['disliked'] = context['dislikes'].filter(user=user).exists()
+        context['disliked'] = context['dislikes'].filter(
+            user_id=user_id).exists()
 
         context['comment_form'] = forms.CommentForm(initial={'post': post})
 
@@ -84,11 +86,12 @@ class PostDetailView(PostViewMixin, generic.DetailView):
         for comment in comments:
             comment.likes = models.Interaction.objects.filter(
                 post=comment, value=models.Interaction.LIKE)
-            comment.liked = comment.likes.filter(user=user).exists()
+            comment.liked = comment.likes.filter(user_id=user_id).exists()
 
             comment.dislikes = models.Interaction.objects.filter(
                 post=comment, value=models.Interaction.DISLIKE)
-            comment.disliked = comment.dislikes.filter(user=user).exists()
+            comment.disliked = comment.dislikes.filter(
+                user_id=user_id).exists()
 
         context["comments"] = comments
 
