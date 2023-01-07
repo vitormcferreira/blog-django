@@ -1,37 +1,46 @@
 // import '../../vendor/jquery-3.6.3';
 
 class InteractionManager {
+  static interactionClass = 'interacted';
+
   constructor($btn) {
-    this.$newInteraction = $btn.parents('.unique-interaction');
-    this.$oldInteraction = $btn
-      .parents('.interactions')
-      .find('.unique-interaction')
-      .filter('.interacted');
+    this.$newInteraction = $btn.parents('.interaction');
+    this.$interacteds = $btn.parents('.interactions').find('.interacted');
   }
 
   interact() {
-    const nothingSelected = this.$oldInteraction.length === 0;
-
-    if (nothingSelected) {
-      this._increaseCount(this.$newInteraction);
-      this.$newInteraction.addClass('interacted');
+    if (this.#alreadyInteractedWith()) {
+      this.#undoInteract(this.$newInteraction);
       return;
     }
-    // se o selecionado for o atual
-    if (this.$oldInteraction.is(this.$newInteraction)) {
-      this._increaseCount(this.$newInteraction, -1);
-      this.$newInteraction.removeClass('interacted');
-      return;
-    }
-    // se tiver um selecionado
 
-    this._increaseCount(this.$oldInteraction, -1);
-    this._increaseCount(this.$newInteraction);
-    this.$oldInteraction.removeClass('interacted');
-    this.$newInteraction.addClass('interacted');
+    if (this.#isUniqueInteraction()) {
+      const $uniqueInteracted = this.$interacteds.filter('.unique-interaction');
+      this.#undoInteract($uniqueInteracted);
+    }
+
+    this.#interact(this.$newInteraction);
   }
 
-  _increaseCount($element, value = 1) {
+  #alreadyInteractedWith() {
+    return this.$interacteds.is(this.$newInteraction);
+  }
+
+  #isUniqueInteraction() {
+    return this.$newInteraction.hasClass('unique-interaction');
+  }
+
+  #interact($interaction) {
+    this.#increaseCount($interaction);
+    $interaction.addClass(InteractionManager.interactionClass);
+  }
+
+  #undoInteract($interaction) {
+    this.#increaseCount($interaction, -1);
+    $interaction.removeClass(InteractionManager.interactionClass);
+  }
+
+  #increaseCount($element, value = 1) {
     const $count = $element.find('.count-interactions');
     $count.text(Number($count.text()) + value);
   }

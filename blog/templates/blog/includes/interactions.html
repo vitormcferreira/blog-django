@@ -1,5 +1,5 @@
 <div class="interactions">
-  <div class="unique-interaction {% if liked %} interacted {% endif %}">
+  <div class="interaction unique-interaction {% if object.liked %} interacted {% endif %}">
     <p>
       <span class="count-interactions">{{ likes.all|length }}</span> likes
     </p>
@@ -8,7 +8,7 @@
       like
     </button>
   </div>
-  <div class="unique-interaction {% if disliked %} interacted {% endif %}">
+  <div class="interaction unique-interaction {% if object.disliked %} interacted {% endif %}">
     <p>
       <span class="count-interactions">{{ dislikes.all|length }}</span> dislikes
     </p>
