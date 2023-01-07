@@ -128,37 +128,42 @@ class CommentCreateView(
 
 class InteractionView(LoginRequiredMixin, generic.View):
     def post(self, *args, **kwargs):
-        post = get_object_or_404(models.Post, pk=self.kwargs['pk'])
+        post = get_object_or_404(models.Post, pk=kwargs['pk'])
         type_ = self.request.GET.get('type')
 
         match type_:
             case 'like':
-                self._like_post(post)
+                self._like(post)
             case 'dislike':
-                self._dislike_post(post)
+                self._dislike(post)
 
         return JsonResponse(data={}, status=201)
 
-    def _like_post(self, post):
-        self._do_interaction(post, models.Interaction.LIKE)
+    def _like(self, post):
+        self._try_interact(post, models.Interaction.LIKE)
 
-    def _dislike_post(self, post):
-        self._do_interaction(post, models.Interaction.DISLIKE)
+    def _dislike(self, post):
+        self._try_interact(post, models.Interaction.DISLIKE)
 
-    def _do_interaction(self, post, value):
+    def _try_interact(self, post, value):
         try:
-            interaction = models.Interaction.objects.get(
-                post=post, user=self.request.user)
-
-            already_interacted = interaction.value == str(value)
-
-            if already_interacted:
-                interaction.delete()
-                return
-
-            interaction.value = value
+            self._set_interaction(post, value)
         except:
-            interaction = models.Interaction(
-                post=post, user=self.request.user, value=value)
+            self._create_interaction(post, value)
 
+    def _set_interaction(self, post, value):
+        interaction = models.Interaction.objects.get(
+            post=post, user=self.request.user)
+
+        already_interacted = interaction.value == str(value)
+
+        if already_interacted:
+            interaction.delete()
+            return
+
+        interaction.value = value
         interaction.save()
+
+    def _create_interaction(self, post, value):
+        models.Interaction.objects.create(
+            post=post, user=self.request.user, value=value)
