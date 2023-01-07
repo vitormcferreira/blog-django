@@ -5,8 +5,12 @@
 {% block content %}
   <p><a href="{% url 'blog:post_create' %}">novo post</a><p>
   <br>
-  {% for post in object_list %}
-    <a href="{% url 'blog:post_detail' post.pk %}">{{ post.title }}</a>
-    <br>
-  {% endfor %}
+  <section class="post-list">
+    {% for post in object_list %}
+      <div class="post-list-item">
+        <h1><a href="{% url 'blog:post_detail' post.pk %}">{{ post.title }}</a></h1>
+        <p>{{ post.abstract }}</p>
+      </div>
+    {% endfor %}
+  </section>
 {% endblock content %}

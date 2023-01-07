@@ -67,3 +67,21 @@
 .interacted {
   color: red;
 }
+
+.post-list {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.post-list-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid var(--light-font-color);
+  border-radius: 10px;
+  padding: 40px;
+}
