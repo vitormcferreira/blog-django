@@ -1,58 +1,49 @@
-function increment(element, value = 1) {
-  element.innerHTML = Number(element.innerHTML) + value;
-}
+// import '../../vendor/jquery-3.6.3';
 
-function handleLike(likeId, dislikeId, url, csrf) {
-  const likeBtn = document.querySelector(likeId);
-  const like = document.querySelector(likeId + ' span');
-  const dislikeBtn = document.querySelector(dislikeId);
-  const dislike = document.querySelector(dislikeId + ' span');
+class InteractionManager {
+  constructor($btn) {
+    this.$newInteraction = $btn.parents('.unique-interaction');
+    this.$oldInteraction = $btn
+      .parents('.interactions')
+      .find('.unique-interaction')
+      .filter('.interacted');
+  }
 
-  handleClick(url, csrf, (res) => {
-    if (res.status === 201) {
-      // se o usuário está caom dislike marcado
-      if (dislikeBtn.classList.contains('active')) {
-        // desmarca dislike
-        increment(dislike, -1);
-        dislikeBtn.classList.remove('active')
-      }
-      // se o usuário está com like marcado
-      if (likeBtn.classList.contains('active')) {
-        // desmarca o like
-        increment(like, -1);
-        likeBtn.classList.remove('active');
-      } else {
-        // marca o like
-        increment(like);
-        likeBtn.classList.add('active');
-      }
+  interact() {
+    const nothingSelected = this.$oldInteraction.length === 0;
+
+    if (nothingSelected) {
+      this._increaseCount(this.$newInteraction);
+      this.$newInteraction.addClass('interacted');
+      return;
     }
-  });
-}
-
-function handleDislike(likeId, dislikeId, url, csrf) {
-  const likeBtn = document.querySelector(likeId);
-  const like = document.querySelector(likeId + ' span');
-  const dislikeBtn = document.querySelector(dislikeId);
-  const dislike = document.querySelector(dislikeId + ' span');
-
-  handleClick(url, csrf, (res) => {
-    if (res.status === 201) {
-      if (likeBtn.classList.contains('active')) {
-        increment(like, -1);
-        likeBtn.classList.remove('active');
-      }
-      if (dislikeBtn.classList.contains('active')) {
-        increment(dislike, -1);
-        dislikeBtn.classList.remove('active');
-      } else {
-        increment(dislike);
-        dislikeBtn.classList.add('active');
-      }
+    // se o selecionado for o atual
+    if (this.$oldInteraction.is(this.$newInteraction)) {
+      this._increaseCount(this.$newInteraction, -1);
+      this.$newInteraction.removeClass('interacted');
+      return;
     }
-  });
+    // se tiver um selecionado
+
+    this._increaseCount(this.$oldInteraction, -1);
+    this._increaseCount(this.$newInteraction);
+    this.$oldInteraction.removeClass('interacted');
+    this.$newInteraction.addClass('interacted');
+  }
+
+  _increaseCount($element, value = 1) {
+    const $count = $element.find('.count-interactions');
+    $count.text(Number($count.text()) + value);
+  }
 }
 
-function handleClick(url, csrf, callback) {
-  fetch(url, { method: 'POST', headers: { 'X-CSRFToken': csrf } }).then(callback);
-}
+$('.btn-interact').on('click', function () {
+  const $btn = $(this);
+
+  $.post($btn.data('url'), {
+    csrfmiddlewaretoken: $btn.data('csrf'),
+  }).done(function () {
+    const manager = new InteractionManager($btn);
+    manager.interact();
+  });
+});

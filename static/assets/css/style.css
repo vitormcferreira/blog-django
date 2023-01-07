@@ -64,6 +64,6 @@
   color: var(--dark-font-color);
 }
 
-.active {
+.interacted {
   color: red;
 }

@@ -1,0 +1,20 @@
+<div class="interactions">
+  <div class="unique-interaction {% if liked %} interacted {% endif %}">
+    <p>
+      <span class="count-interactions">{{ likes.all|length }}</span> likes
+    </p>
+    <button type="button" class="btn-interact" data-url="{% url 'blog:interaction' object.pk %}?type=like"
+      data-csrf="{{ csrf_token }}">
+      like
+    </button>
+  </div>
+  <div class="unique-interaction {% if disliked %} interacted {% endif %}">
+    <p>
+      <span class="count-interactions">{{ dislikes.all|length }}</span> dislikes
+    </p>
+    <button type="button" class="btn-interact" data-url="{% url 'blog:interaction' object.pk %}?type=dislike"
+      data-csrf="{{ csrf_token }}">
+      dislike
+    </button>
+  </div>
+</div>
