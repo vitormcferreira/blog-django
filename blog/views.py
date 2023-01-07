@@ -37,10 +37,13 @@ class PostCreateView(
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        self.object.author = self.request.user
-        self.object.save()
+        self._add_object_author()
 
+        self.object.save()
         return redirect(self.get_success_url())
+
+    def _add_object_author(self):
+        self.object.author = self.request.user
 
 
 class PostUpdateView(
