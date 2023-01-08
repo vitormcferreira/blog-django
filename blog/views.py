@@ -12,6 +12,16 @@ class PostViewMixin:
     model = models.Post
     fields = ['title', 'abstract', 'text']
 
+    def get_queryset(self) -> QuerySet[models.Post]:
+        qs = super().get_queryset()
+
+        qs = self._exclude_comments(qs)
+
+        return qs
+
+    def _exclude_comments(self, qs):
+        return qs.filter(parent__isnull=True)
+
 
 class SuccessUrlToPostDetailMixin:
     def get_success_url(self) -> str:
