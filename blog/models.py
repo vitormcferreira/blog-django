@@ -19,6 +19,17 @@ class Post(models.Model):
     abstract = models.TextField(null=True)
     text = models.TextField()
 
-    parent = models.ForeignKey('self', null=True, on_delete=models.CASCADE)
+    parent = models.ForeignKey(
+        'self', null=True, on_delete=models.CASCADE, related_name='comments')
     interactions = models.ManyToManyField(
         User, through=Interaction, related_name='interacted_posts')
+
+    @property
+    def likes(self):
+        return self.interactions.filter(
+            interaction__post=self, interaction__value=Interaction.LIKE)
+
+    @property
+    def dislikes(self):
+        return self.interactions.filter(
+            interaction__post=self, interaction__value=Interaction.DISLIKE)

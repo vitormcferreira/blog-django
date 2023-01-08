@@ -48,7 +48,7 @@
     <p>{{comment.text}}</p>
   </main>
   <footer>
-    {% include "./includes/interactions.html" with likes=comment.likes liked=comment.liked dislikes=comment.dislikes disliked=comment.disliked  object=comment %}
+    {% include "./includes/interactions.html" with object=comment %}
   </footer>
 </article>
 {% endfor %}

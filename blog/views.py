@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import QuerySet
+from django.db.models import Case, Count, QuerySet, When
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -80,37 +80,46 @@ class PostDeleteView(
 
 
 class PostDetailView(PostViewMixin, generic.DetailView):
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        if self.request.user.is_authenticated:
+            qs = self._annotate_liked_post(qs)
+            qs = self._annotate_disliked_post(qs)
+
+        return qs
+
+    def _annotate_liked_post(self, qs):
+        return qs.annotate(liked=self._has_interacted(
+            models.Interaction.LIKE))
+
+    def _annotate_disliked_post(self, qs):
+        return qs.annotate(disliked=self._has_interacted(
+            models.Interaction.DISLIKE))
+
+    def _has_interacted(self, value):
+        return Count(Case(
+            When(interaction__user=self.request.user,
+                 interaction__value=value,
+                 then=True))
+        )
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         post = self.object
-
         user_id = self.request.user.id
 
         self._add_comment_form(context)
 
-        context['likes'] = models.Interaction.objects.filter(
-            post=post, value=models.Interaction.LIKE)
-        context['liked'] = context['likes'].filter(user_id=user_id).exists()
-
-        context['dislikes'] = models.Interaction.objects.filter(
-            post=post, value=models.Interaction.DISLIKE)
-        context['disliked'] = context['dislikes'].filter(
-            user_id=user_id).exists()
-
-        comments = models.Post.objects.filter(parent=post)
-
+        # TODO: adicionar campos liked e disliked dos comments em get_queryset
+        comments = post.comments.all()
         for comment in comments:
-            comment.likes = models.Interaction.objects.filter(
-                post=comment, value=models.Interaction.LIKE)
-            comment.liked = comment.likes.filter(user_id=user_id).exists()
-
-            comment.dislikes = models.Interaction.objects.filter(
-                post=comment, value=models.Interaction.DISLIKE)
+            comment.liked = comment.likes.filter(id=user_id).exists()
             comment.disliked = comment.dislikes.filter(
-                user_id=user_id).exists()
+                id=user_id).exists()
 
-        context["comments"] = comments
+        context['comments'] = comments
 
         return context
 
