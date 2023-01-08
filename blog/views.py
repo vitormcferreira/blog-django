@@ -27,6 +27,10 @@ class FilterQuerySetByAuthorMixin:
         return qs
 
 
+class PostListView(PostViewMixin, generic.ListView):
+    template_name = 'blog/home.html'
+
+
 class PostCreateView(
     PostViewMixin,
     LoginRequiredMixin,
