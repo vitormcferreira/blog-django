@@ -87,6 +87,8 @@ class PostDetailView(PostViewMixin, generic.DetailView):
 
         user_id = self.request.user.id
 
+        self._add_comment_form(context)
+
         context['likes'] = models.Interaction.objects.filter(
             post=post, value=models.Interaction.LIKE)
         context['liked'] = context['likes'].filter(user_id=user_id).exists()
@@ -95,8 +97,6 @@ class PostDetailView(PostViewMixin, generic.DetailView):
             post=post, value=models.Interaction.DISLIKE)
         context['disliked'] = context['dislikes'].filter(
             user_id=user_id).exists()
-
-        context['comment_form'] = forms.CommentForm(initial={'post': post})
 
         comments = models.Post.objects.filter(parent=post)
 
@@ -113,6 +113,10 @@ class PostDetailView(PostViewMixin, generic.DetailView):
         context["comments"] = comments
 
         return context
+
+    def _add_comment_form(self, context):
+        context['comment_form'] = forms.CommentForm(
+            initial={'post': self.object})
 
 
 class CommentViewMixin:
