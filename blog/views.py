@@ -142,18 +142,21 @@ class CommentCreateView(
     def form_valid(self, form):
         self.object = form.save(commit=False)
 
-        parent_id = self.kwargs['post_id']
+        # se o usuário não estiver autenticado o comentário é feito como
+        # anônimo (author = NULL)
+        self._set_object_author_if_authenticated()
+        self._set_object_parent()
 
-        # se o usuário não estiver autenticado o comentário é feito sem
-        # author (NULL)
+        self.object.save()
+        return redirect(reverse_lazy(
+            'blog:post_detail', args=[self.object.parent_id]))
+
+    def _set_object_author_if_authenticated(self):
         if self.request.user.is_authenticated:
             self.object.author = self.request.user
 
-        self.object.parent_id = parent_id
-
-        self.object.save()
-
-        return redirect(reverse_lazy('blog:post_detail', args=[parent_id]))
+    def _set_object_parent(self):
+        self.object.parent_id = self.kwargs['post_id']
 
 
 class InteractionView(LoginRequiredMixin, generic.View):
