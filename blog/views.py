@@ -170,18 +170,18 @@ class InteractionView(LoginRequiredMixin, generic.View):
         return JsonResponse(data={}, status=201)
 
     def _like(self, post):
-        self._try_interact(post, models.Interaction.LIKE)
+        self._interact(post, models.Interaction.LIKE)
 
     def _dislike(self, post):
-        self._try_interact(post, models.Interaction.DISLIKE)
+        self._interact(post, models.Interaction.DISLIKE)
 
-    def _try_interact(self, post, value):
+    def _interact(self, post, value):
         try:
-            self._set_interaction(post, value)
+            self._try_set_interaction(post, value)
         except:
             self._create_interaction(post, value)
 
-    def _set_interaction(self, post, value):
+    def _try_set_interaction(self, post, value):
         interaction = models.Interaction.objects.get(
             post=post, user=self.request.user)
 
