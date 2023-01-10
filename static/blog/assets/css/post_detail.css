@@ -1,0 +1,43 @@
+.post {
+  display: grid;
+  gap: 20px;
+  line-height: 1.5;
+}
+
+.post header {
+  display: grid;
+  gap: 10px;
+}
+
+.post .abstract {
+  color: rgba(54, 55, 141, 0.7);
+}
+
+.interactions {
+  display: flex;
+  gap: 20px;
+  justify-content: end;
+  margin: 10px;
+}
+
+.btn-interact {
+  color: inherit;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.form-comment {
+  justify-content: start;
+}
+
+.form-comment .input {
+  font-size: small;
+}
+
+.comment {
+  display: grid;
+  gap: 10px;
+  border-top: 1px solid var(--dark-bg-color);
+  padding-top: 10px;
+  margin-top: 20px;
+}

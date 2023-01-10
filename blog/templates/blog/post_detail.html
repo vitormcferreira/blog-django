@@ -1,59 +1,71 @@
 {% extends 'base.html' %}
 
 {% load static %}
+{% load widget_tweaks %}
+
+{% block css %}
+  <link rel="stylesheet" href="{% static 'blog/assets/css/post_detail.css' %}">
+{% endblock css %}
 
 {% block content %}
-{% if request.user == object.author %}
-<p><a href="{% url 'blog:post_update' object.pk %}">Update</a></p>
-<p><a href="{% url 'blog:post_delete' object.pk %}">Delete</a></p>
-{% endif %}
+  {% if request.user == object.author %}
+  <div class="links-align-left">
+    <a href="{% url 'blog:post_update' object.pk %}">Update</a>
+    <a href="{% url 'blog:post_delete' object.pk %}">Delete</a>
+  </div>
+  {% endif %}
 
-<hr>
+  <article class="post">
+    <header>
+      <h1 class="content-title">{{ object.title }}</h1>
+      <p>Autor: {{ object.author }}</p>
+      <p class="abstract">{{ object.abstract }}</p>
+    </header>
+    <main>
+      <p>{{ object.text }}</p>
+    </main>
+    <footer>
+      {% include "./includes/interactions.html" %}
+    </footer>
+  </article>
 
-<article class="post">
-  <header>
-    <h1>{{ object.title }}</h1>
-    <p>Author: {{ object.author }}</p>
-    <p style="color: #888;">{{ object.abstract }}</p>
-  </header>
-  <main>
-    <p>{{ object.text }}</p>
-  </main>
-  <footer>
-    {% include "./includes/interactions.html" %}
-  </footer>
-</article>
+  <section>
+    <h2>Comentários</h2>
 
-<section>
-  <h2>Comentários</h2>
+    <form method="POST" action="{% url 'blog:comment_create' object.pk %}" class="form form-comment">
+      {% csrf_token %}
+      <div class="field">
+        {{ comment_form.non_field_errors }}
+      </div>
+      <div class="field">
+        <label for="id_text">Texto:</label>
+        {% render_field comment_form.text class+="input" %}
+      </div>
+      <div class="field">
+        <input type="submit" value="Enviar" class="btn">
+      </div>
+    </form>
+  </section>
 
-  <form method="POST" action="{% url 'blog:comment_create' object.pk %}">
-    {% csrf_token %}
-    {{ comment_form }}
-    <input type="submit" value="Enviar">
-  </form>
-</section>
-<br>
-
-{% for comment in comments %}
-<article>
-  <header>
-    <h1>{% if comment.author %}
-      {{ comment.author }}
-      {% else %}
-      Anônimo
-      {% endif %}</h1>
-  </header>
-  <main>
-    <p>{{comment.text}}</p>
-  </main>
-  <footer>
-    {% include "./includes/interactions.html" with object=comment %}
-  </footer>
-</article>
-{% endfor %}
+  {% for comment in comments %}
+    <article class="comment">
+      <header>
+        <h1>{% if comment.author %}
+          {{ comment.author }}
+          {% else %}
+          Anônimo
+          {% endif %}</h1>
+      </header>
+      <main>
+        <p>{{comment.text}}</p>
+      </main>
+      <footer>
+        {% include "./includes/interactions.html" with object=comment %}
+      </footer>
+    </article>
+  {% endfor %}
 {% endblock content %}
 
 {% block js %}
-<script src="{% static 'assets/js/post_detail.js' %}"></script>
+  <script src="{% static 'blog/assets/js/post_detail.js' %}"></script>
 {% endblock js %}

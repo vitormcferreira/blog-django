@@ -1,24 +1,14 @@
 <div class="interactions">
   <div class="interaction unique-interaction {% if object.liked %} interacted {% endif %}">
-    <p>
+    <button type="button" class="btn-interact" data-url="{% url 'blog:interaction' object.pk %}?type=like"
+      data-csrf="{{ csrf_token }}" {% if not request.user.is_authenticated %} disabled {% endif %}>
       <span class="count-interactions">{{ object.likes.all|length }}</span> likes
-    </p>
-    {% if request.user.is_authenticated %}
-      <button type="button" class="btn-interact" data-url="{% url 'blog:interaction' object.pk %}?type=like"
-        data-csrf="{{ csrf_token }}">
-        like
-      </button>
-    {% endif %}
+    </button>
   </div>
   <div class="interaction unique-interaction {% if object.disliked %} interacted {% endif %}">
-    <p>
+    <button type="button" class="btn-interact" data-url="{% url 'blog:interaction' object.pk %}?type=dislike"
+      data-csrf="{{ csrf_token }}" {% if not request.user.is_authenticated %} disabled {% endif %}>
       <span class="count-interactions">{{ object.dislikes.all|length }}</span> dislikes
-    </p>
-    {% if request.user.is_authenticated %}
-      <button type="button" class="btn-interact" data-url="{% url 'blog:interaction' object.pk %}?type=dislike"
-        data-csrf="{{ csrf_token }}">
-        dislike
-      </button>
-    {% endif %}
+    </button>
   </div>
 </div>
