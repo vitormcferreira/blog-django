@@ -1,12 +1,33 @@
 {% extends 'base.html' %}
 
-{% block content %}
-  <h1>Cadastrar</h1>
+{% load widget_tweaks %}
 
-  <form method="POST">
+{% block content %}
+  <h1 class="content-title">Cadastrar</h1>
+
+  <form method="POST" class="form">
     {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Cadastrar">
+    <div class="field">
+      {{ form.non_field_errors }}
+    </div>
+    <div class="field">
+      <label for="id_username">Nome de usuário:</label>
+      {% render_field form.username class+="input" %}
+      {{ form.username.errors }}
+    </div>
+    <div class="field">
+      <label for="id_password1">Senha:</label>
+      {% render_field form.password1 class+="input" %}
+      {{ form.password1.errors }}
+    </div>
+    <div class="field">
+      <label for="id_password2">Confirmar senha:</label>
+      {% render_field form.password2 class+="input" %}
+      {{ form.password2.errors }}
+    </div>
+    <div class="field">
+      <input type="submit" value="Cadastrar" class="btn">
+      <p>Já possui cadastro? <a href="{% url 'accounts:login' %}">Fazer login</a></p>
+    </div>
   </form>
-  <p>Já possui cadastro? <a href="{% url 'accounts:login' %}">Fazer login</a></p>
 {% endblock content %}
