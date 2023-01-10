@@ -1,12 +1,33 @@
 {% extends 'base.html' %}
 
+{% load widget_tweaks %}
+
 {% block content %}
-  <form method="POST">
+  <h1 class="content-title">Criar post</h1>
+
+  <form method="POST" class="form">
     {% csrf_token %}
-    {{ form.non_field_errors }}
-    {{ form.errors }}
-    {{ form.as_div }}
-    <button type="submit">Salvar</button>
+    <div class="field">
+      {{ form.non_field_errors }}
+    </div>
+    <div class="field">
+      <label for="id_title">Título:</label>
+      {% render_field form.title class+="input" %}
+      {{ form.title.errors }}
+    </div>
+    <div class="field">
+      <label for="id_abstract">Resumo:</label>
+      {% render_field form.abstract class+="input" %}
+      {{ form.abstract.errors }}
+    </div>
+    <div class="field">
+      <label for="id_text">Texto:</label>
+      {% render_field form.text class+="input" %}
+      {{ form.text.errors }}
+    </div>
+    <div class="field">
+      <input type="submit" value="Salvar" class="btn">
+    </div>
   </form>
 {% endblock content %}
 
