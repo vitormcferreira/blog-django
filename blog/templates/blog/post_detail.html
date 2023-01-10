@@ -7,6 +7,8 @@
   <link rel="stylesheet" href="{% static 'blog/assets/css/post_detail.css' %}">
 {% endblock css %}
 
+{% block title %}{{ object.title }}{% endblock title %}
+
 {% block content %}
   {% if request.user == object.author %}
   <div class="links-align-left">

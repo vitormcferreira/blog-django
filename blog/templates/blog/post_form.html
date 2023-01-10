@@ -2,13 +2,23 @@
 
 {% load widget_tweaks %}
 
+{% block title %}
+  {% if request.resolver_match.url_name == 'post_create' %}
+    Criar
+  {% else %}
+    Editar
+  {% endif %}
+  post
+{% endblock title %}
+
 {% block content %}
   <h1 class="content-title">
     {% if request.resolver_match.url_name == 'post_create' %}
-      Criar Post
+      Criar
     {% else %}
-      Editar Post
+      Editar
     {% endif %}
+    post
   </h1>
 
   <form method="POST" class="form">
