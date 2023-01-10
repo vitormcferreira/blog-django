@@ -3,7 +3,13 @@
 {% load widget_tweaks %}
 
 {% block content %}
-  <h1 class="content-title">Criar post</h1>
+  <h1 class="content-title">
+    {% if request.resolver_match.url_name == 'post_create' %}
+      Criar Post
+    {% else %}
+      Editar Post
+    {% endif %}
+  </h1>
 
   <form method="POST" class="form">
     {% csrf_token %}
