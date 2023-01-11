@@ -12,16 +12,6 @@ class PostViewMixin:
     model = models.Post
     fields = ['title', 'abstract', 'text']
 
-    def get_queryset(self) -> QuerySet[models.Post]:
-        qs = super().get_queryset()
-
-        qs = self._exclude_comments(qs)
-
-        return qs
-
-    def _exclude_comments(self, qs):
-        return qs.filter(parent__isnull=True)
-
 
 class SuccessUrlToPostDetailMixin:
     def get_success_url(self) -> str:
@@ -37,7 +27,17 @@ class FilterQuerySetByAuthorMixin:
         return qs
 
 
-class PostListView(PostViewMixin, generic.ListView):
+class FilterQuerySetOnlyPostsMixin:
+    def get_queryset(self) -> QuerySet[models.Post]:
+        # Posts diferem de comentários por não possuírem um parent
+        return super().get_queryset().filter(parent__isnull=True)
+
+
+class PostListView(
+    PostViewMixin,
+    FilterQuerySetOnlyPostsMixin,
+    generic.ListView
+):
     template_name = 'blog/home.html'
 
 
@@ -64,6 +64,7 @@ class PostUpdateView(
     PostViewMixin,
     LoginRequiredMixin,
     FilterQuerySetByAuthorMixin,
+    FilterQuerySetOnlyPostsMixin,
     SuccessUrlToPostDetailMixin,
     generic.UpdateView
 ):
@@ -74,12 +75,17 @@ class PostDeleteView(
     PostViewMixin,
     LoginRequiredMixin,
     FilterQuerySetByAuthorMixin,
+    FilterQuerySetOnlyPostsMixin,
     generic.DeleteView
 ):
     success_url = reverse_lazy('blog:home')
 
 
-class PostDetailView(PostViewMixin, generic.DetailView):
+class PostDetailView(
+    PostViewMixin,
+    FilterQuerySetOnlyPostsMixin,
+    generic.DetailView
+):
     def get_queryset(self):
         qs = super().get_queryset()
 
