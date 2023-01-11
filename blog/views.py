@@ -18,16 +18,12 @@ class SuccessUrlToPostDetailMixin:
         return reverse_lazy('blog:post_detail', args=[self.object.pk])
 
 
-class FilterQuerySetByAuthorMixin:
+class GetQuerySetByAuthorMixin:
     def get_queryset(self):
-        qs: QuerySet = super().get_queryset()
-
-        qs = qs.filter(author=self.request.user)
-
-        return qs
+        return super().get_queryset().filter(author=self.request.user)
 
 
-class FilterQuerySetOnlyPostsMixin:
+class GetQuerySetOnlyPostsMixin:
     def get_queryset(self) -> QuerySet[models.Post]:
         # Posts diferem de comentários por não possuírem um parent
         return super().get_queryset().filter(parent__isnull=True)
@@ -35,7 +31,7 @@ class FilterQuerySetOnlyPostsMixin:
 
 class PostListView(
     PostViewMixin,
-    FilterQuerySetOnlyPostsMixin,
+    GetQuerySetOnlyPostsMixin,
     generic.ListView
 ):
     template_name = 'blog/home.html'
@@ -44,7 +40,7 @@ class PostListView(
 class PostCreateView(
     PostViewMixin,
     LoginRequiredMixin,
-    FilterQuerySetByAuthorMixin,
+    GetQuerySetByAuthorMixin,
     SuccessUrlToPostDetailMixin,
     generic.CreateView
 ):
@@ -63,8 +59,8 @@ class PostCreateView(
 class PostUpdateView(
     PostViewMixin,
     LoginRequiredMixin,
-    FilterQuerySetByAuthorMixin,
-    FilterQuerySetOnlyPostsMixin,
+    GetQuerySetByAuthorMixin,
+    GetQuerySetOnlyPostsMixin,
     SuccessUrlToPostDetailMixin,
     generic.UpdateView
 ):
@@ -74,8 +70,8 @@ class PostUpdateView(
 class PostDeleteView(
     PostViewMixin,
     LoginRequiredMixin,
-    FilterQuerySetByAuthorMixin,
-    FilterQuerySetOnlyPostsMixin,
+    GetQuerySetByAuthorMixin,
+    GetQuerySetOnlyPostsMixin,
     generic.DeleteView
 ):
     success_url = reverse_lazy('blog:home')
@@ -83,7 +79,7 @@ class PostDeleteView(
 
 class PostDetailView(
     PostViewMixin,
-    FilterQuerySetOnlyPostsMixin,
+    GetQuerySetOnlyPostsMixin,
     generic.DetailView
 ):
     def get_queryset(self):
