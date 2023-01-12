@@ -2,10 +2,6 @@
 
 {% load static %}
 
-{% block css %}
-  <link rel="stylesheet" href="{% static 'blog/assets/css/home.css' %}">
-{% endblock css %}
-
 {% block title %}Blog{% endblock title %}
 
 {% block content %}
@@ -16,9 +12,9 @@
       </div>
     {% endif %}
     {% for post in object_list %}
-      <article class="post-list-item">
+      <article class="list-item">
         <a href="{% url 'blog:post_detail' post.pk %}">
-          <h1 class="post-list-item-title">{{ post.title }}</h1>
+          <h1 class="list-item-title">{{ post.title }}</h1>
           <p>{{ post.abstract }}</p>
         </a>
       </article>
