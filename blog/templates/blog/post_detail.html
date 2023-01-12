@@ -50,7 +50,7 @@
   </section>
 
   {% for comment in comments %}
-    <article class="comment">
+    <article class="comment" id="{{ comment.id }}">
       <header>
         <div class="links-align-left">
           {% if request.user == comment.author or request.user == object.author %}

@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Case, Count, QuerySet, When
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse_lazy
 from django.views import generic
 
@@ -241,3 +241,27 @@ class InteractionView(LoginRequiredMixin, generic.View):
     def _create_interaction(self, post, value):
         models.Interaction.objects.create(
             post=post, user=self.request.user, value=value)
+
+
+class Dashboard(generic.View):
+    template_name = 'blog/dashboard.html'
+
+    def get_context_data(self, **kwargs):
+        context = {}
+
+        context["posts"] = self._get_user_posts()
+        context["comments"] = self._get_user_comments()
+
+        return context
+
+    def _get_user_posts(self):
+        return models.Post.objects.filter(
+            parent__isnull=True, author=self.request.user)
+
+    def _get_user_comments(self):
+        return models.Post.objects.filter(
+            parent__isnull=False, author=self.request.user)
+
+    def get(self, *args, **kwargs):
+        context = self.get_context_data()
+        return render(self.request, self.template_name, context)

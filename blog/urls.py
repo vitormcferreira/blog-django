@@ -16,6 +16,8 @@ urlpatterns = [
     path('comment_delete/<post_id>/<pk>/',
          views.CommentDeleteView.as_view(), name='comment_delete'),
 
+    path('dashboard/', views.Dashboard.as_view(), name='dashboard'),
+
     # Requisições feitas com Ajax
     path('interaction/<pk>/', views.InteractionView.as_view(), name='interaction'),
 ]
