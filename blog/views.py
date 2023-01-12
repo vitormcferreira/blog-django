@@ -29,6 +29,11 @@ class GetQuerySetOnlyPostsMixin:
         return super().get_queryset().filter(parent__isnull=True)
 
 
+class GetQuerySetOnlyCommentsMixin:
+    def get_queryset(self) -> QuerySet[models.Post]:
+        return super().get_queryset().filter(parent__isnull=False)
+
+
 class PostListView(
     PostViewMixin,
     GetQuerySetOnlyPostsMixin,
@@ -159,6 +164,40 @@ class CommentCreateView(
 
     def _set_object_parent(self):
         self.object.parent_id = self.kwargs['post_id']
+
+
+class CommentDeleteView(
+    CommentViewMixin,
+    LoginRequiredMixin,
+    GetQuerySetOnlyCommentsMixin,
+    generic.DeleteView
+):
+    template_name = "blog/comment_confirm_delete.html"
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        post = models.Post.objects.get(id=self.kwargs['post_id'])
+
+        qs = self._filter_post_comments(qs, post)
+
+        if not self._user_is_post_author(post):
+            qs = self._filter_only_comments_created_by_user(qs)
+        # se o usuário for o author do post, ele pode apagar qualquer
+        # comentário
+
+        return qs
+
+    def _filter_post_comments(self, qs, post):
+        return qs.filter(parent=post)
+
+    def _user_is_post_author(self, post):
+        return post.author == self.request.user
+
+    def _filter_only_comments_created_by_user(self, qs):
+        return qs.filter(author=self.request.user)
+
+    def get_success_url(self) -> str:
+        return reverse_lazy('blog:post_detail', args=[self.object.parent.pk])
 
 
 class InteractionView(LoginRequiredMixin, generic.View):

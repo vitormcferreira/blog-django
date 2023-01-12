@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block title %}Apagar comentário{% endblock title %}
+
+{% block content %}
+  <form method="POST" class="form">
+    {% csrf_token %}
+    <div class="field">
+      <p>Deseja apagar este comentário?</p>
+      <input type="submit" value="Sim" class="btn">
+    </div>
+  </form>
+{% endblock content %}

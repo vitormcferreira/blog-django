@@ -52,6 +52,11 @@
   {% for comment in comments %}
     <article class="comment">
       <header>
+        <div class="links-align-left">
+          {% if request.user == comment.author or request.user == object.author %}
+            <a href="{% url 'blog:comment_delete' object.id comment.id %}" title="Apagar comentário">Apagar</a>
+          {% endif %}
+        </div>
         <h1>{% if comment.author %}
           {{ comment.author }}
           {% else %}
