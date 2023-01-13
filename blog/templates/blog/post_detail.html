@@ -54,7 +54,20 @@
       <header>
         <div class="links-align-left">
           {% if request.user == comment.author or request.user == object.author %}
-            <a href="{% url 'blog:comment_delete' object.id comment.id %}" title="Apagar comentário">Apagar</a>
+            <button class="comment-delete-btn" type="button" title="Apagar comentário">Apagar</button>
+            <article class="popup-comment-delete">
+              <h1>Apagar comentário</h1>
+              <p>Deseja realmente apagar esse comentário?</p>
+              <form class="form" method="post" action="{% url 'blog:comment_delete' object.id comment.id %}">
+                {% csrf_token %}
+                <div class="field">
+                  <div>
+                    <button class="btn" type="submit">Sim</button>
+                    <button class="btn popup-cancel" type="button">Cancelar</button>
+                  </div>
+                </div>
+              </form>
+            </article>
           {% endif %}
         </div>
         <h1>{% if comment.author %}

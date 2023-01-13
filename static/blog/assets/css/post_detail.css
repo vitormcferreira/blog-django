@@ -41,3 +41,18 @@
   padding-top: 10px;
   margin-top: 20px;
 }
+
+.popup-comment-delete {
+  background-color: var(--light-bg-color);
+  border-radius: 5px;
+  box-shadow: 0 0 10px;
+  padding: 20px;
+
+  
+  display: none;
+  text-align: center;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}

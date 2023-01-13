@@ -172,7 +172,7 @@ class CommentDeleteView(
     GetQuerySetOnlyCommentsMixin,
     generic.DeleteView
 ):
-    template_name = "blog/comment_confirm_delete.html"
+    http_method_names = ['post']
 
     def get_queryset(self):
         qs = super().get_queryset()

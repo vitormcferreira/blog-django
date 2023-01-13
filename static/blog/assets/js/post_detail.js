@@ -56,3 +56,26 @@ $('.btn-interact').on('click', function () {
     manager.interact();
   });
 });
+
+// Exclusão de comentários
+
+$('.comment-delete-btn').on('click', function () {
+  const $popup = $(this).siblings('.popup-comment-delete');
+  $popup.show();
+});
+
+$('.popup-cancel').on('click', function () {
+  const $popup = $('.popup-comment-delete');
+  $popup.hide();
+});
+
+$('.comment .popup-comment-delete .form').on('submit', function () {
+  const $popup = $(this).parents('.popup-comment-delete');
+
+  $.post($(this).attr('action'), {
+    csrfmiddlewaretoken: $('[name=csrfmiddlewaretoken]')[0].value
+  }).done(function () {
+    $popup.parents('.comment').remove();
+  });
+  return false;
+});

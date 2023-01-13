@@ -18,6 +18,5 @@ urlpatterns = [
 
     path('dashboard/', views.Dashboard.as_view(), name='dashboard'),
 
-    # Requisições feitas com Ajax
     path('interaction/<pk>/', views.InteractionView.as_view(), name='interaction'),
 ]
